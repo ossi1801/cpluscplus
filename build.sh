@@ -1,0 +1,1 @@
+g++ test.cpp -o main -lGL -lGLU -lglut
