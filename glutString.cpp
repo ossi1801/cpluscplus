@@ -26,12 +26,7 @@ void drawtext()
 
     glColor3f(1.0f, 0.0f, 1.0f);                       // TEXT COLOR
     glRasterPos2f(WINDOW_WIDTH / 3, WINDOW_HEIGT / 2); // Text POSITION
-
-    //cout << text;
-    const unsigned char *text = reinterpret_cast<const unsigned char *>(ST_TEXT.c_str());
-    // Use the above weird cast or just pass text to array to pass it to a pointer
-    // const unsigned char textA[] = "text to render";
-    // const unsigned char* text = textA;
+    const unsigned char *text = reinterpret_cast<const unsigned char *>(ST_TEXT.c_str()); // Cast to pointer
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, text); // screen in an 18-point Helvetica font
 
     glPopMatrix(); // SWITCH BACK TO VERTEX
@@ -39,7 +34,7 @@ void drawtext()
     glPopMatrix();
 }
 
-// Clears the current window and draws a triangle.
+// Clears the current window and calls draw function
 void display()
 {
     // Set every pixel in the frame buffer to the current clear color.
@@ -56,6 +51,7 @@ void update(int i)
     glutTimerFunc(1000 / fps, update, i); // recursion is needed glutTimerfunc is only called once
 }
 
+//checks file for linux uptime
 string show_uptime()
 {	
 	auto ifs = std::ifstream("/proc/uptime");
@@ -70,7 +66,6 @@ string show_uptime()
 // enters the main event loop.
 int main(int argc, char **argv)
 {
-
     // Use a single buffered window in RGB mode (as opposed to a double-buffered
     // window or color-index mode).
     glutInit(&argc, argv);
