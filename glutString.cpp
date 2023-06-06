@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <fstream>
 #include <string>
 #include <GL/freeglut.h>
 // g++ test.cpp -o main -lGL -lGLU -lglut
@@ -9,10 +9,13 @@ using namespace std;
 int WINDOW_WIDTH = 500;
 int WINDOW_HEIGT = 400;
 
+int fps = 30;
+static string ST_TEXT = "Text";
+string show_uptime();
 void drawtext()
 {
 
-    //GET WINDOW COORDS INSTEAD OF VERTICES FOR TEXT POS
+    // GET WINDOW COORDS INSTEAD OF VERTICES FOR TEXT POS
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
@@ -20,17 +23,18 @@ void drawtext()
     glPushMatrix();
     glLoadIdentity();
     gluOrtho2D(0, WINDOW_WIDTH, 0, WINDOW_HEIGT);
-   
-    glColor3f(1.0f, 0.0f, 1.0f); //TEXT COLOR
-    glRasterPos2f(WINDOW_WIDTH/3, WINDOW_HEIGT/2); // Text POSITION
 
-    const unsigned char *text = reinterpret_cast<const unsigned char *>("text to render");
+    glColor3f(1.0f, 0.0f, 1.0f);                       // TEXT COLOR
+    glRasterPos2f(WINDOW_WIDTH / 3, WINDOW_HEIGT / 2); // Text POSITION
+
+    //cout << text;
+    const unsigned char *text = reinterpret_cast<const unsigned char *>(ST_TEXT.c_str());
     // Use the above weird cast or just pass text to array to pass it to a pointer
     // const unsigned char textA[] = "text to render";
     // const unsigned char* text = textA;
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, text); // screen in an 18-point Helvetica font
 
-    glPopMatrix(); //SWITCH BACK TO VERTEX
+    glPopMatrix(); // SWITCH BACK TO VERTEX
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 }
@@ -43,6 +47,23 @@ void display()
     drawtext();
     // Flush drawing command buffer to make drawing happen as soon as possible.
     glFlush();
+}
+
+void update(int i)
+{
+    ST_TEXT = show_uptime();
+    glutPostRedisplay();
+    glutTimerFunc(1000 / fps, update, i); // recursion is needed glutTimerfunc is only called once
+}
+
+string show_uptime()
+{	
+	auto ifs = std::ifstream("/proc/uptime");
+	if( !ifs.good() ){ throw std::runtime_error("Error: unable to open uptime file "); }
+	double seconds;
+	ifs >> seconds; 
+	uint64_t factor = 24 * 60 * 60;
+	return "   Uptime in hours = " + std::to_string(seconds / ( 60 * 60));
 }
 
 // Initializes GLUT, the display mode, and main window; registers callbacks;
@@ -63,6 +84,7 @@ int main(int argc, char **argv)
     // Tell GLUT that whenever the main window needs to be repainted that it
     // should call the function display().
     glutDisplayFunc(display);
+    glutTimerFunc(100, update, 0);
 
     // Tell GLUT to start reading and processing events.  This function
     // never returns; the program only exits when the user closes the main
